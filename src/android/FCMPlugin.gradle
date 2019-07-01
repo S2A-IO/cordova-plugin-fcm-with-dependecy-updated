@@ -16,6 +16,18 @@ repositories {
 dependencies {
     compile 'com.google.firebase:firebase-core:10.+'
 }
+
+if (!project.ext.has('appShortcutBadgerVersion')) {
+    ext.appShortcutBadgerVersion = '1.1.22'
+}
+
+if (!project.ext.has('appShortcutBadgerCustom')) {
+    dependencies {
+        implementation "me.leolin:ShortcutBadger:${appShortcutBadgerVersion}@aar"
+    }
+}
+
 // apply plugin: 'com.google.gms.google-services'
 // class must be used instead of id(string) to be able to apply plugin from non-root gradle file
 apply plugin: com.google.gms.googleservices.GoogleServicesPlugin
+
