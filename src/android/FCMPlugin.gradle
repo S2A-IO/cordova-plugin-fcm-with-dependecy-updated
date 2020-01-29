@@ -52,6 +52,21 @@ dependencies {
         compile "com.google.firebase:firebase-messaging:${FCM_VERSION}"
     }
 }
+
+if (!project.ext.has('appShortcutBadgerVersion')) {
+    ext.appShortcutBadgerVersion = '1.1.22'
+}
+
+if (!project.ext.has('appShortcutBadgerCustom')) {
+    dependencies {
+        if (gradleNumberVersion >= 3.4f) {
+            implementation "me.leolin:ShortcutBadger:${appShortcutBadgerVersion}@aar"
+        } else {
+            compile "me.leolin:ShortcutBadger:${appShortcutBadgerVersion}@aar"
+        }
+    }
+}
+
 // apply plugin: 'com.google.gms.google-services'
 // class must be used instead of id(string) to be able to apply plugin from non-root gradle file
 apply plugin: com.google.gms.googleservices.GoogleServicesPlugin
