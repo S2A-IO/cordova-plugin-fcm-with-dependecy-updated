@@ -14,6 +14,7 @@
 static BOOL notificatorReceptorReady = NO;
 static BOOL appInForeground = YES;
 
+static SystemSoundID soundID = nil;
 static NSString *notificationCallback = @"FCMPlugin.onNotificationReceived";
 static NSString *tokenRefreshCallback = @"FCMPlugin.onTokenRefreshReceived";
 static NSString *apnsToken = nil;
@@ -153,7 +154,16 @@ static FCMPlugin *fcmPluginInstance;
     NSString *JSONString = [[NSString alloc] initWithBytes:[payload bytes] length:[payload length] encoding:NSUTF8StringEncoding];
     NSString * notifyJS = [NSString stringWithFormat:@"%@(%@);", notificationCallback, JSONString];
     NSLog(@"stringByEvaluatingJavaScriptFromString %@", notifyJS);
-    
+    NSDictionary *jsonObject = [NSJSONSerialization JSONObjectWithData:payload options:0 error:nil];
+
+    if ([jsonObject objectForKey:@"playAudio"]) {
+        NSLog(@"playAudio %@", [jsonObject objectForKey:@"playAudio"]);
+        [self play:[jsonObject objectForKey:@"playAudio"]];
+    } else if ([jsonObject objectForKey:@"stopAudio"]) {
+        NSLog(@"stopAudio %@", [jsonObject objectForKey:@"stopAudio"]);
+        [self stop:[jsonObject objectForKey:@"playAudio"]];
+    }
+
     if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
         [(UIWebView *)self.webView stringByEvaluatingJavaScriptFromString:notifyJS];
     } else {
@@ -189,6 +199,49 @@ static FCMPlugin *fcmPluginInstance;
         [FCMPlugin.fcmPlugin notifyOfMessage:lastPush];
     }
     appInForeground = YES;
+}
+
+- (void) playAudio: (CDVInvokedUrlCommand*) command {
+    CDVPluginResult* pluginResult = nil;
+    NSString* ringtoneUri = [command argumentAtIndex:0];
+    [self play:ringtoneUri];
+    if ( soundID ) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    } else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+    }
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void) stopAudio: (CDVInvokedUrlCommand*) command {
+    CDVPluginResult* pluginResult = nil;
+    NSString* ringtoneUri = [command argumentAtIndex:0];
+    [self stop:ringtoneUri];
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (BOOL) play: (NSString*) ringtoneUri {
+    NSString* path = [[NSBundle mainBundle] pathForResource:ringtoneUri ofType:nil];
+    [self stop:ringtoneUri];
+    AudioServicesCreateSystemSoundID((__bridge_retained CFURLRef)[NSURL fileURLWithPath:path],&soundID);
+    if ( soundID ) {
+        AudioServicesPlaySystemSound(soundID);
+        return true;
+    }
+    return false;
+}
+
+- (BOOL) stop: (NSString*) ringtoneUri {
+    if ( soundID ) {
+        AudioServicesDisposeSystemSoundID(soundID);
+    }
+    if ( ringtoneUri ) {
+        NSString* path = [[NSBundle mainBundle] pathForResource:ringtoneUri ofType:nil];
+        AudioServicesCreateSystemSoundID((__bridge_retained CFURLRef)[NSURL fileURLWithPath:path],&soundID);
+        AudioServicesDisposeSystemSoundID(soundID);
+    }
+    return true;
 }
 
 @end

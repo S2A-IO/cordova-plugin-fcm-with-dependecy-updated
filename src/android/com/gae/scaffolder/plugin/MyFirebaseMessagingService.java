@@ -8,6 +8,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+
 import java.util.Map;
 import java.util.HashMap;
 
@@ -40,26 +41,38 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.
         Log.d(TAG, "==> MyFirebaseMessagingService onMessageReceived");
-        
+
         if(remoteMessage.getNotification() != null){
             Log.d(TAG, "\tNotification Title: " + remoteMessage.getNotification().getTitle());
             Log.d(TAG, "\tNotification Message: " + remoteMessage.getNotification().getBody());
         }
-        
+
         Map<String, Object> data = new HashMap<String, Object>();
         data.put("wasTapped", false);
-        
+
         if(remoteMessage.getNotification() != null){
             data.put("title", remoteMessage.getNotification().getTitle());
             data.put("body", remoteMessage.getNotification().getBody());
         }
 
         for (String key : remoteMessage.getData().keySet()) {
-                Object value = remoteMessage.getData().get(key);
-                Log.d(TAG, "\tKey: " + key + " Value: " + value);
-                data.put(key, value);
+            Object value = remoteMessage.getData().get(key);
+            Log.d(TAG, "\tKey: " + key + " Value: " + value);
+            data.put(key, value);
+
+            try {
+                if ( key.equals("gcm.notification.badge") || key.equals( "badge" ) ) {
+                    FCMPlugin.getInstance().setBadge(getApplicationContext(), Integer.parseInt( value.toString() ));
+                }
+                if ( key.equals( "playAudio" ) ) {
+                    FCMPlugin.getInstance().playAudio(getApplicationContext(), value.toString() );
+                }
+                if ( key.equals( "stopAudio" ) ) {
+                    FCMPlugin.getInstance().stopAudio(getApplicationContext(), value.toString());
+                }
+            } catch ( Error err ) {}
         }
-        
+
         Log.d(TAG, "\tNotification Data: " + data.toString());
         FCMPlugin.sendPushPayload( data );
         //sendNotification(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody(), remoteMessage.getData());
@@ -69,29 +82,29 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     /**
      * Create and show a simple notification containing the received FCM message.
      *
-     * @param messageBody FCM message body received.
+     * @param data FCM message body received.
      */
-    private void sendNotification(String title, String messageBody, Map<String, Object> data) {
+    private void sendNotification( Map<String, Object> data ) {
         Intent intent = new Intent(this, FCMPluginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         for (String key : data.keySet()) {
             intent.putExtra(key, data.get(key).toString());
         }
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
-                PendingIntent.FLAG_ONE_SHOT);
+                PendingIntent.FLAG_IMMUTABLE);
 
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(getApplicationInfo().icon)
-                .setContentTitle(title)
-                .setContentText(messageBody)
+                .setContentTitle(data.get( "title" ).toString())
+                .setContentText(data.get( "body" ).toString())
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
                 .setContentIntent(pendingIntent);
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+        long timestamp = System.currentTimeMillis()/1000;
+        notificationManager.notify(((int) timestamp) /* ID of notification */, notificationBuilder.build());
     }
 }

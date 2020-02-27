@@ -54,4 +54,16 @@ export interface FCMPlugin {
     onSuccess?: (message: string) => void,
     onError?: (error: Error) => void
   ): void;
+
+  playAudio(
+    filePath: string,
+    onSuccess?: (message: string) => void,
+    onError?: (error: Error) => void
+  ): void;
+
+  stopAudio(
+    filePath?: string,
+    onSuccess?: (message: string) => void,
+    onError?: (error: Error) => void
+  ): void;
 }
