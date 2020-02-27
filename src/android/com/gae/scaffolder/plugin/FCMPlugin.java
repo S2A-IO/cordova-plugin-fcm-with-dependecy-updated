@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.AssetFileDescriptor;
+import android.media.MediaPlayer;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -34,6 +36,7 @@ public class FCMPlugin extends CordovaPlugin {
     public static String tokenRefreshCallBack = "FCMPlugin.onTokenRefreshReceived";
     public static Boolean notificationCallBackReady = false;
     public static Map<String, Object> lastPush = null;
+    private static MediaPlayer m;
 
     protected Context context = null;
     protected static OnFinishedListener<JSONObject> notificationFn = null;
@@ -41,6 +44,7 @@ public class FCMPlugin extends CordovaPlugin {
     private static CordovaPlugin instance = null;
 
     public FCMPlugin() {}
+
     public FCMPlugin(Context context) {
         this.context = context;
     }
@@ -144,6 +148,28 @@ public class FCMPlugin extends CordovaPlugin {
                         }
                     }
                 });
+            } else if (action.equals("playAudio")) {
+                cordova.getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                        try {
+                            playAudio(getContext().getApplicationContext(), args.getString(0));
+                            callbackContext.success();
+                        } catch (Exception e) {
+                            callbackContext.error(e.getMessage());
+                        }
+                    }
+                });
+            } else if (action.equals("stopAudio")) {
+                cordova.getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                        try {
+                            stopAudio(getContext().getApplicationContext(), args.getString(0));
+                            callbackContext.success();
+                        } catch (Exception e) {
+                            callbackContext.error(e.getMessage());
+                        }
+                    }
+                });
             } else {
                 callbackContext.error("Method not found");
                 return false;
@@ -182,8 +208,7 @@ public class FCMPlugin extends CordovaPlugin {
                         Log.w(TAG, "getInstanceId failed", task.getException());
                         try {
                             callback.error(exceptionToJson(task.getException()));
-                        }
-                        catch (JSONException jsonErr) {
+                        } catch (JSONException jsonErr) {
                             Log.e(TAG, "Error when parsing json", jsonErr);
                         }
                         return;
@@ -291,10 +316,10 @@ public class FCMPlugin extends CordovaPlugin {
         return context;
     }
 
-    public static void setBadge(Context context, int count) {
+    public void setBadge(Context context, int count) {
         String launcherClassName = getLauncherClassName(context);
         if (launcherClassName == null) {
-            Log.e("classname","null");
+            Log.e("classname", "null");
             return;
         }
         Intent intent = new Intent("android.intent.action.BADGE_COUNT_UPDATE");
@@ -304,7 +329,7 @@ public class FCMPlugin extends CordovaPlugin {
         context.sendBroadcast(intent);
     }
 
-    public static String getLauncherClassName(Context context) {
+    public String getLauncherClassName(Context context) {
 
         PackageManager pm = context.getPackageManager();
 
@@ -320,5 +345,38 @@ public class FCMPlugin extends CordovaPlugin {
             }
         }
         return null;
+    }
+
+    public void playAudio(Context context, String file) {
+        try {
+            if (m == null) {
+                m = new MediaPlayer();
+            } else {
+                m.release();
+                m = new MediaPlayer();
+            }
+            AssetFileDescriptor descriptor = context.getAssets().openFd(file);
+            long start = descriptor.getStartOffset();
+            long end = descriptor.getLength();
+
+            m.setDataSource(descriptor.getFileDescriptor(), start, end);
+            descriptor.close();
+
+            m.prepare();
+            m.setVolume(1f, 1f);
+            // m.setLooping(true);
+            m.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void stopAudio(Context context, String file) {
+        try {
+            if ( m != null ) m.release();
+            m = null;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

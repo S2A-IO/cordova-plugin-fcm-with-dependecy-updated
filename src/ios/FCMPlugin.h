@@ -1,5 +1,6 @@
 #import <UIKit/UIKit.h>
 #import <Cordova/CDVPlugin.h>
+#import <AudioToolbox/AudioToolbox.h>
 
 @interface FCMPlugin : CDVPlugin
 {
@@ -21,5 +22,6 @@
 - (void)notifyOfMessage:(NSData*) payload;
 - (void)appEnterBackground;
 - (void)appEnterForeground;
-
+- (void)playAudio:(CDVInvokedUrlCommand*)command;
+- (void)stopAudio:(CDVInvokedUrlCommand*)command;
 @end

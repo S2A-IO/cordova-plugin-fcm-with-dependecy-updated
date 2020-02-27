@@ -66,6 +66,16 @@ FCMPlugin.prototype.onTokenRefreshReceived = function(token) {
   console.log(token);
 };
 
+// Play audio //
+FCMPlugin.prototype.playAudio = function(filePath, success, error) {
+  exec(success, error, "FCMPlugin", "playAudio", [filePath]);
+};
+
+// Stop running audio //
+FCMPlugin.prototype.stopAudio = function(filePath, success, error) {
+  exec(success, error, "FCMPlugin", "stopAudio", [filePath]);
+};
+
 // FIRE READY //
 exec(
   function(result) {

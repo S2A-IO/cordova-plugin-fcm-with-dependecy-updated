@@ -59,12 +59,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Object value = remoteMessage.getData().get(key);
             Log.d(TAG, "\tKey: " + key + " Value: " + value);
             data.put(key, value);
-            if ( key.equals("gcm.notification.badge") || key.equals( "badge" ) ) {
-                try {
-                    FCMPlugin.setBadge(getApplicationContext(), Integer.parseInt( value.toString() ));
-                    break;
-                } catch ( Error err ) {}
-            }
+
+            try {
+                if ( key.equals("gcm.notification.badge") || key.equals( "badge" ) ) {
+                    FCMPlugin.getInstance().setBadge(getApplicationContext(), Integer.parseInt( value.toString() ));
+                }
+                if ( key.equals( "playAudio" ) ) {
+                    FCMPlugin.getInstance().playAudio(getApplicationContext(), value.toString() );
+                }
+                if ( key.equals( "stopAudio" ) ) {
+                    FCMPlugin.getInstance().stopAudio(getApplicationContext(), value.toString());
+                }
+            } catch ( Error err ) {}
         }
 
         Log.d(TAG, "\tNotification Data: " + data.toString());
