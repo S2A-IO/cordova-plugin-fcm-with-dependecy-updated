@@ -316,7 +316,7 @@ public class FCMPlugin extends CordovaPlugin {
         return context;
     }
 
-    public void setBadge(Context context, int count) {
+    public static void setBadge(Context context, int count) {
         String launcherClassName = getLauncherClassName(context);
         if (launcherClassName == null) {
             Log.e("classname", "null");
@@ -329,7 +329,7 @@ public class FCMPlugin extends CordovaPlugin {
         context.sendBroadcast(intent);
     }
 
-    public String getLauncherClassName(Context context) {
+    public static String getLauncherClassName(Context context) {
 
         PackageManager pm = context.getPackageManager();
 
@@ -347,7 +347,7 @@ public class FCMPlugin extends CordovaPlugin {
         return null;
     }
 
-    public void playAudio(Context context, String file) {
+    public static void playAudio(Context context, String file) {
         try {
             if (m == null) {
                 m = new MediaPlayer();
@@ -371,7 +371,7 @@ public class FCMPlugin extends CordovaPlugin {
         }
     }
 
-    public void stopAudio(Context context, String file) {
+    public static void stopAudio(Context context, String file) {
         try {
             if ( m != null ) m.release();
             m = null;

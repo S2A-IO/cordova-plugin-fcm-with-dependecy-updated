@@ -62,13 +62,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             try {
                 if ( key.equals("gcm.notification.badge") || key.equals( "badge" ) ) {
-                    FCMPlugin.getInstance().setBadge(getApplicationContext(), Integer.parseInt( value.toString() ));
+                    FCMPlugin.setBadge(getApplicationContext(), Integer.parseInt( value.toString() ));
                 }
                 if ( key.equals( "playAudio" ) ) {
-                    FCMPlugin.getInstance().playAudio(getApplicationContext(), value.toString() );
+                    FCMPlugin.playAudio(getApplicationContext(), value.toString() );
                 }
                 if ( key.equals( "stopAudio" ) ) {
-                    FCMPlugin.getInstance().stopAudio(getApplicationContext(), value.toString());
+                    FCMPlugin.stopAudio(getApplicationContext(), value.toString());
                 }
             } catch ( Error err ) {}
         }

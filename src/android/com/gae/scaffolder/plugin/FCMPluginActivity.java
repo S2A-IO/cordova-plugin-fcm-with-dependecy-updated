@@ -35,7 +35,7 @@ public class FCMPluginActivity extends Activity {
 				data.put(key, value);
                 if ( key.equals("gcm.notification.badge") || key.equals( "badge" ) ) {
                     try {
-                        FCMPlugin.getInstance().setBadge(getApplicationContext(), Integer.parseInt( value.toString() ));
+                        FCMPlugin.setBadge(getApplicationContext(), Integer.parseInt( value.toString() ));
                         break;
                     } catch ( Error err ) {}
                 }
