@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -64,7 +65,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 if ( key.equals("gcm.notification.badge") || key.equals( "badge" ) ) {
                     FCMPlugin.setBadge(getApplicationContext(), Integer.parseInt( value.toString() ));
                 }
-                if ( key.equals( "playAudio" ) ) {
+                if ( key.equals( "playAudio" ) && android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.N ) {
                     FCMPlugin.playAudio(getApplicationContext(), value.toString() );
                 }
                 if ( key.equals( "stopAudio" ) ) {
