@@ -11,6 +11,134 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/andrehtissot/cordova-plugin-fcm-with-dependecy-updated/badge.svg?targetFile=package.json)](https://snyk.io/test/github/andrehtissot/cordova-plugin-fcm-with-dependecy-updated?targetFile=package.json)
 [![DeepScan grade](https://deepscan.io/api/teams/3417/projects/5068/branches/39495/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=3417&pid=5068&bid=39495)
 
+### Optional FCM Image Support for Cordova iOS
+
+After a lot of work, the first release of the plugin https://github.com/andrehtissot/cordova-plugin-fcm-image-support is out. Which should enable the support, just by installing it.
+
+### Version 6.4.0 (21/05/2020)
+
+The `FCMPlugin.requestPushPermissionIOS` function now, not only triggers the request alert, but also returns, as boolean, if the permission was given.
+
+```javascript
+FCMPlugin.requestPushPermissionIOS(
+  function(wasPermissionGiven) {
+    console.info("Was permission given: "+wasPermissionGiven);
+  },
+  function(error) {
+    console.error(error);
+  },
+  ios9Support: {
+    timeout: 10,  // How long it will wait for a decision from the user before returning `false`
+    interval: 0.3 // How long between each permission verification
+  }
+);
+```
+
+Note:
+On iOS 9, there is no way to know if the user has denied the permissions or he has not yet decided.
+For this reason, specifically for iOS 9, after presenting the alert, a timed loop waits until it knows that the user has either given the permissions or that the time has expired.
+On iOS 10+, the return is given as soon as the user has selected, ignoring these options.
+
+### Version 6.3.0 (27/04/2020)
+
+FCMPlugin.createNotificationChannelAndroid improved, now accepting three other options: "sound", "lights" and "vibration", like in:
+```javascript
+FCMPlugin.createNotificationChannelAndroid({
+  id: "urgent_alert", // required
+  name: "Urgent Alert", // required
+  description: "Very urgent message alert",
+  importance: "high", // https://developer.android.com/guide/topics/ui/notifiers/notifications#importance
+  visibility: "public", // https://developer.android.com/training/notify-user/build-notification#lockscreenNotification
+  sound: "alert_sound", // In the "alert_sound" example, the file should located as resources/raw/alert_sound.mp3
+  lights: true, // enable lights for notifications
+  vibration: true // enable vibration for notifications
+});
+```
+
+### Version 6.2.0 (26/04/2020)
+
+IOS 9 support reintroduced.
+
+### Version 6.1.0 (24/04/2020)
+
+For Android, some notification properties are only defined programmatically, one of those is channel.
+Channel can define the default behavior for notifications on Android 8.0+.
+This feature was meant to bring the channel-only configurations importance and visibility:
+
+```javascript
+FCMPlugin.createNotificationChannelAndroid({
+  id: "urgent_alert", // required
+  name: "Urgent Alert", // required
+  description: "Very urgent message alert",
+  importance: "high", // https://developer.android.com/guide/topics/ui/notifiers/notifications#importance
+  visibility: "public", // https://developer.android.com/training/notify-user/build-notification#lockscreenNotification 
+});
+```
+
+:warning: Once a channel is created, it stays unchangeable until the user uninstalls the app.
+
+To have a notification to use the channel, you have to add to the push notification payload the key `android_channel_id` with the id given to `createNotificationChannelAndroid` (https://firebase.google.com/docs/cloud-messaging/http-server-ref#notification-payload-support)
+
+### Version 6.0.1 (20/04/2020)
+
+As a hotfix to avoid incompatibility with cordova-plugin-ionic-webview, the the changes requested for cordova support (https://cordova.apache.org/howto/2020/03/18/wkwebviewonly) will not be automatic applied.
+
+### Version 6.0.0 (18/04/2020)
+
+On iOS, first run doesn't automatically request Push permission.
+
+The permission, as it is still required, may now be requested from javascript at any moment by executing:
+```javascript
+//FCMPlugin.requestPushPermissionIOS( successCallback(), errorCallback(err) );
+FCMPlugin.requestPushPermissionIOS();
+```
+
+### Version 5.1.0 (18/04/2020)
+
+Replaced `UIWebView` with `WKWebView`, as required by Apple (https://developer.apple.com/documentation/uikit/uiwebview).
+
+For a smooth upgrade, the changes requested for cordova support (https://cordova.apache.org/howto/2020/03/18/wkwebviewonly) are applied automatically.
+
+### Version 5.0.0 (16/04/2020)
+
+For both platforms:
+- Not only copies, from application root, the Google Services configuration files on build, but also on install;
+- `onFirebaseDataNotificationIOS` removed, as relied on upstream socket connection, which will is deprecated and will be removed in Firebase 7 (https://firebase.google.com/support/release-notes/ios#fcm, announced in February 25, 2020).
+
+For iOS:
+- On install "Remote Notification" is set as a "Background Mode" capacity automatically;
+- Firebase now is handled manually, due to complications of auto-swizzling;
+- Firebase dependencies are now set to 6.21.0;
+- Delayed Firebase registration, by 300ms, to avoid deadlock issue with Watchdog;
+- Removed support for iOS 9.
+
+For Android:
+- Demonstrative code, for custom notifications, was removed and its imports of androidx classes to improve compatibility with older cordova plugins.
+
+### Version 4.6.0 (04/04/2020)
+
+For the IOS, if app is on the foreground and the app receives a `data` push notification, the data can be retrieved by setting the callback to the new method: `FCMPlugin.onFirebaseDataNotificationIOS` [Deprecated].
+
+```javascript
+FCMPlugin.onFirebaseDataNotificationIOS(
+  function(payload) {
+    console.info("Message id: "+payload.messageID)
+    console.info("Data parameters: "+payload.appData)
+  }
+);
+```
+
+This method is specifically implemented on IOS due to specific payload format ([src/FCMPlugin.d.ts](https://github.com/andrehtissot/cordova-plugin-fcm-with-dependecy-updated/blob/master/src/FCMPlugin.d.ts)).
+
+
+### Version 4.5.1 (30/03/2020)
+
+Due to a bug introduced in v4.4.3, the file `platforms/android/app/src/main/res/values/strings.xml` had two tags included on install, tags which, on build, are also included by cordova-android@8.x.x. Hence failing the build process.
+
+To apply the fix, install the new version and remove these two tags from your values/strings.xml:
+* `<string name="google_app_id">...</string>`
+* `<string name="google_api_key">...</string>`
+
 ### Version 4.2.0 (24/02/2020)
 
 `ANDROID_DEFAULT_NOTIFICATION_ICON` included as a variable.
@@ -19,7 +147,6 @@ To define the default icon for notifications (`com.google.firebase.messaging.def
 ```bash
 cordova plugin add cordova-plugin-fcm-with-dependecy-updated --variable ANDROID_DEFAULT_NOTIFICATION_ICON="@mipmap/notification_icon"
 ```
-
 
 ### Version 4.1.0 (26/10/2019)
 

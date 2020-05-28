@@ -16,9 +16,6 @@ import java.util.HashMap;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-/**
- * Created by Felipe Echanique on 08/06/2016.
- */
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "FCMPlugin";
@@ -27,6 +24,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onNewToken(String token) {
         super.onNewToken(token);
         Log.d(TAG, "New token: " + token);
+        FCMPlugin.sendTokenRefresh(token);
     }
 
     /**
@@ -75,8 +73,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         Log.d(TAG, "\tNotification Data: " + data.toString());
-        FCMPlugin.sendPushPayload( data );
-        //sendNotification(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody(), remoteMessage.getData());
+        FCMPlugin.sendPushPayload(data);
     }
     // [END receive_message]
 
