@@ -7,9 +7,7 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-
 import java.util.Map;
 import java.util.HashMap;
 
@@ -76,33 +74,4 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         FCMPlugin.sendPushPayload(data);
     }
     // [END receive_message]
-
-    /**
-     * Create and show a simple notification containing the received FCM message.
-     *
-     * @param data FCM message body received.
-     */
-    private void sendNotification( Map<String, Object> data ) {
-        Intent intent = new Intent(this, FCMPluginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        for (String key : data.keySet()) {
-            intent.putExtra(key, data.get(key).toString());
-        }
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
-                PendingIntent.FLAG_IMMUTABLE);
-
-        Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(getApplicationInfo().icon)
-                .setContentTitle(data.get( "title" ).toString())
-                .setContentText(data.get( "body" ).toString())
-                .setAutoCancel(true)
-                .setSound(defaultSoundUri)
-                .setContentIntent(pendingIntent);
-
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        long timestamp = System.currentTimeMillis()/1000;
-        notificationManager.notify(((int) timestamp) /* ID of notification */, notificationBuilder.build());
-    }
 }

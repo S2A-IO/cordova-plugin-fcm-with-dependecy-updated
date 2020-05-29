@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.gae.scaffolder.plugin.interfaces.OnFinishedListener;
