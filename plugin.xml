@@ -47,7 +47,7 @@
 					<category android:name="android.intent.category.DEFAULT" />
 				</intent-filter>
 			</activity>
-			<service 
+			<service android:exported="true"
 				android:name="com.gae.scaffolder.plugin.MyFirebaseMessagingService"
 				android:stopWithTask="false">
 				<intent-filter>
