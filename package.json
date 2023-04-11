@@ -29,6 +29,9 @@
     "android",
     "ios"
   ],
+  "publishConfig": {
+    "registry": "https://npm.s2a.io"
+  },
   "engines": [],
   "englishdoc": ""
 }
